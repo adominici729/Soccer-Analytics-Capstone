@@ -153,3 +153,8 @@ __Team confirmation:__ We agree that this charter accurately describes our share
 __Submitted by:__ TO BE UPDATED
 
 __Date:__ TO BE UPDATED
+
+## Data Attribution
+
+Data provided by StatsBomb: <https://github.com/hudl/open-data>
+![StatsBomb logo](images/statsbomb_logo.png)
