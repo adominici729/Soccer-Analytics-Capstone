@@ -161,4 +161,4 @@ __Date:__ 11/2/2026
 ## Data Attribution
 
 Data provided by StatsBomb: <https://github.com/hudl/open-data>
-![StatsBomb logo](images/statsbomb_logo.png)
+![StatsBomb logo](../images/statsbomb_logo.png)
