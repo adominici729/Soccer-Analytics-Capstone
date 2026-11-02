@@ -135,6 +135,10 @@ Project risks are uncertainties that can undermine a project's success. Sometime
 
 This is actually one of the hardest parts - identifying your primary stakeholder. In the real world, you will know exactly who they are and what is expected of you. Here, you are being asked __to choose__ one (and really try to focus on just one) stakeholder. This will be the audience to whom you address your deliverables (as well as other data scientists on your team, of course!).
 
+__Your response:__
+
+The club's coaching staff will be the intended stakeholder. Using player shot data, we aim to equip the coaching staff with actionable shot quality data. 
+
 ## Final Check
 
 Before submitting, confirm that everyone on your team can answer the following:
