@@ -137,7 +137,7 @@ This is actually one of the hardest parts - identifying your primary stakeholder
 
 __Your response:__
 
-The club's coaching staff will be the intended stakeholder. Using player shot data, we aim to equip the coaching staff with actionable shot quality data. 
+The club's coaching staff will be the intended stakeholder. We aim to equip the coaching staff with actionable shot quality data. 
 
 ## Final Check
 
