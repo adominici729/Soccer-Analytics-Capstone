@@ -52,7 +52,7 @@ __Consider__:
 
 __Your response:__
 
-A soccer team is struggling to win games because they aren't scoring enough goals. Poor results can hurt their league standing, revenue, and fan support, putting pressure on management to improve the offense. Understanding which shots have the best chance of scoring could help coaches create better opportunities and avoid wasting possessions on poor shots. The results could also help management decide which players to recruit or rely on to score goals.
+A soccer club is struggling to win games because they aren't scoring enough goals. Poor results can hurt their league standing, revenue, and fan support, putting pressure on management to improve the offense. Understanding which shots have the best chance of scoring could help coaches create better opportunities and avoid wasting possessions on poor shots. The results could also help management decide which players to recruit or rely on to score goals.
 
 ### Stakeholder and Intended Use
 
@@ -154,9 +154,9 @@ Before submitting, confirm that everyone on your team can answer the following:
 
 __Team confirmation:__ We agree that this charter accurately describes our shared understanding of the project at the start of the Capstone.
 
-__Submitted by:__ TO BE UPDATED
+__Submitted by:__ Brian Quevillon
 
-__Date:__ TO BE UPDATED
+__Date:__ 11/2/2026
 
 ## Data Attribution
 
