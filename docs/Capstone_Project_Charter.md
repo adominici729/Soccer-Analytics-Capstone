@@ -19,7 +19,7 @@ __Project title:__ What Makes a Good Shot
 
 __Team name:__ team_beta
 
-__Team members:__ Alden George, Brian D'Alelio, Brian Quevillon
+__Team members:__ Alden George, Brian D'Alelio, Brian Quevillon, Anthony Dominici
 
 __Project source:__
 
