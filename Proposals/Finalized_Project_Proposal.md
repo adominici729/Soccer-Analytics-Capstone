@@ -74,13 +74,13 @@ Since the xG model is predictive, we will not treat its coefficients or feature 
 
 **Initial data structure.** The working data has five related tables (Appendix B1, Table B1). The main one, `shots.csv`, has 37,888 rows and 68 columns: 37,488 non-penalty shots and 400 penalties, with penalty shootouts already taken out. The other tables cover possessions (297,794 rows), players by match (42,096), players by season (2,288) and teams by season (80).
 
-**Key variables.** Our team's feature table is `shots_analysis_df` in `initial_eda_02`, with 37,449 shots and 38 columns after we removed penalties, 32 shots where the goalkeeper was missing from the freeze frame, and 7 shots taken directly from corners. The target is `is_goal`, which is already in the table (True when `shot_outcome_name` is 'Goal'; 9.5% of shots). The predictors already in the table are shot location and geometry (`x`, `y`, `shot_distance`, `shot_angle`), details of the shot itself (`shot_body_part_name`, `shot_technique_name`, `shot_type_name`, `shot_first_time`, `shot_one_on_one`, `shot_open_goal`, `shot_aerial_won`), how the possession started (`play_pattern_name`), and the defensive situation (`under_pressure`, plus six features we built from the freeze frame: `defenders_in_lane`, `teammates_in_lane`, `goalkeeper_in_lane`, `percent_of_goal_open`, `goalkeeper_distance_from_goal` and `goalkeeper_distance_to_shooter`). We will group by `match_id`, `competition_name`, `team_id` and `player_id`. We keep `shot_statsbomb_xg` only as a benchmark and never use it as a feature. Build-up and key-pass features, like the type of pass before the shot and how long the possession lasted, already exist in our supplementary build (`soccer_csv/shots.csv`) and we plan to add them to the team table. Variables we have not created yet, such as our own xG per shot, player finishing estimates and shot cluster labels, are listed separately in Appendix A.
+**Key variables.** Our team's feature table is `shots_analysis_df` in `initial_eda_02`, with 37,449 shots and 40 columns after we removed penalties, 32 shots where the goalkeeper was missing from the freeze frame, and 7 shots taken directly from corners. The target is `is_goal`, which is already in the table (True when `shot_outcome_name` is 'Goal'; 9.5% of shots). The predictors already in the table are shot location and geometry (`x`, `y`, `shot_distance`, `shot_angle`), details of the shot itself (`shot_body_part_name`, `shot_technique_name`, `shot_type_name`, `shot_first_time`, `shot_one_on_one`, `shot_open_goal`, `shot_aerial_won`), how the possession started (`play_pattern_name`), and the defensive situation (`under_pressure`, plus six features we built from the freeze frame: `defenders_in_lane`, `teammates_in_lane`, `goalkeeper_in_lane`, `percent_of_goal_open`, `goalkeeper_distance_from_goal` and `goalkeeper_distance_to_shooter`). We will group by `match_id`, `competition_name`, `team_id` and `player_id`. We keep `shot_statsbomb_xg` only as a benchmark and never use it as a feature. We have also added `receipt_to_shot_seconds` and `receipt_to_shot_displacement` to describe the time and movement between receiving the assisting pass and shooting. Both are available for 26,993 shots (72.1%). Supporting pass and receipt details are retained separately in `shots_with_pass_receipt_df` (37,449 rows and 57 columns), while `shots_analysis_df` keeps only the two new features alongside its existing columns. Broader possession and key-pass features remain available in the supplementary build (`soccer_csv/shots.csv`); they are not part of this two-feature addition. Variables we have not created yet, such as our own xG per shot, player finishing estimates and shot cluster labels, are listed separately in Appendix A.
 
-**Data integration.** So far we have joined match details (competition, date, teams, score) to the shots on `match_id`, linked each shot to the pass before it through StatsBomb's `key_pass_id`, and joined possession-level build-up features on match and possession number. Caen and Marseille were each spelled two different ways in the event files, so we cleaned those names up. Still to do: join our model's xG for each shot back to `player_season.csv` on `player_id` and `team` to calculate finishing. Players who moved clubs mid-season show up under two teams, so we will total finishing by `player_id` and only use `team` for team summaries.
+**Data integration.** So far we have joined match details (competition, date, teams, score) to the shots on `match_id`, linked each shot to the pass before it through StatsBomb's `key_pass_id`, and joined possession-level build-up features on match and possession number. In `initial_eda_02.ipynb`, we additionally linked assisting passes to successful `Ball Receipt*` events through explicit event links, checked that the receiver was the shooter and that team, possession, period and event timing agreed, and joined the calculated features to shots on `id` with one-to-one validation. No shots were removed by this step. Caen and Marseille were each spelled two different ways in the event files, so we cleaned those names up. Still to do: join our model's xG for each shot back to `player_season.csv` on `player_id` and `team` to calculate finishing. Players who moved clubs mid-season show up under two teams, so we will total finishing by `player_id` and only use `team` for team summaries.
 
-**Initial data quality.** Appendix B2 has the details. We found no duplicate shots or rows, and the location, shot type and outcome columns have no missing values. Every non-penalty shot has a freeze frame, but in 32 of them the goalkeeper is not in it, even though most of those shots were recorded as saves, so we dropped them. We also dropped the 7 shots taken directly from corners, since there were too few to model and one of them was recorded behind the goal line. The key-pass columns are blank for 28.6% of shots, but that is expected because those shots had no key pass. The target is unbalanced: 9.5% of non-penalty shots are goals, compared with 75% of penalties. The four leagues look alike, with goal rates between 8.7% and 10.4%. A few values looked odd at first but turned out to be valid (Appendix B2). We also found a leakage problem. The `shot_deflected` flag describes something that happens after the ball is struck, and deflected shots go in 35% of the time, so it has to be left out along with the outcome and end-location columns.
+**Initial data quality.** Appendix B2 has the details. We found no duplicate shots or rows, and the location, shot type and outcome columns have no missing values. Every non-penalty shot has a freeze frame, but in 32 of them the goalkeeper is not in it, even though most of those shots were recorded as saves, so we dropped them. We also dropped the 7 shots taken directly from corners, since there were too few to model and one of them was recorded behind the goal line. In the supplementary all-shot table, key-pass columns are blank for 28.6% of shots. An absent link does not by itself establish how the chance developed. In the final analysis sample, the two receipt-based features are missing for 10,456 shots (27.9%): 10,435 have no assisting-pass link, 15 have an intervening on-ball event and 6 have no valid linked receipt. These values remain missing rather than being changed to zero (Appendix B5). The target is unbalanced: 9.5% of non-penalty shots are goals, compared with 75% of penalties. The four leagues look alike, with goal rates between 8.7% and 10.4%. A few values looked odd at first but turned out to be valid (Appendix B2). We also found a leakage problem. The `shot_deflected` flag describes something that happens after the ball is struck, and deflected shots go in 35% of the time, so it has to be left out along with the outcome and end-location columns.
 
-**Reproducibility.** The current dataset can be rebuilt with three commands: `python3 scripts/build.py out` (downloads and processes the 1,517 event files in a few minutes), `python3 scripts/aggregate.py out csv` and `python3 scripts/dict.py`. The README in `soccer_csv/` explains the source, scope, row counts and modeling notes. The repository notebooks still use hardcoded Windows file paths. In Week 3 we plan to switch them to a relative, git-ignored `data/` folder and add a `requirements.txt`.
+**Reproducibility.** The current dataset can be rebuilt with three commands: `python3 scripts/build.py out` (downloads and processes the 1,517 event files in a few minutes), `python3 scripts/aggregate.py out csv` and `python3 scripts/dict.py`. The README in `soccer_csv/` explains the source, scope, row counts and modeling notes. The team notebook `initial_eda_02.ipynb` now also rebuilds the two receipt-based features directly from the original event JSONs and exports the 40-column analysis table and the 57-column supporting table. It does not need a previously generated passing CSV. The repository notebooks still use hardcoded Windows file paths. In Week 3 we plan to switch them to a relative, git-ignored `data/` folder and add a `requirements.txt`.
 
 ## Analysis Plan
 
@@ -97,7 +97,7 @@ Since the xG model is predictive, we will not treat its coefficients or feature 
 - `shot_freeze_frame` has already been dropped now that all the freeze-frame features are built. We will keep the ID columns (`id`, `match_id`, `player_id`, `team_id`) only for joining tables and splitting the data.
 - We will also leave player and team names out of the xG model (`player_name`, `team_name`, `home_team`, `away_team`). The model should judge how good the chance was, not who took it. We look at the players afterward, in the finishing analysis.
 - Category columns will be turned into numbers the models can use (one-hot encoding for logistic regression, built-in category handling for boosting). The True/False shot flags are already filled in and will be stored as 0 and 1. Very rare categories, like `shot_body_part_name = Other` (87 shots), will be grouped together.
-- We will bring the build-up and key-pass features over from the supplementary build by joining on the shot `id`. Shots with no key pass will get their own "no key pass" category instead of being left blank.
+- The two receipt-based features have already been joined to the team table by shot `id`. Supporting pass/receipt IDs, timestamps, locations and link status remain available for checking in `shots_with_pass_receipt_df`; they will not automatically enter the predictor set. Missing receipt values will not be replaced with zero, since zero can represent a valid immediate shot or no recorded displacement. For models requiring complete inputs, imputation and missingness indicators will be fitted within each training fold. Any broader supplementary features will be evaluated separately.
 - Decisions already made: we removed the 32 shots where the goalkeeper was missing from the freeze frame, so `goalkeeper_in_lane` = False always means the keeper was out of position. We also removed the 7 shots taken straight from corners.
 - We will add a few reshaped versions of distance and angle (the log of `shot_distance`, `shot_angle` in radians, and distance times angle). These are created inside each training step so no information leaks from the test data.
 - **We will split the data by match, not by shot.** All the shots from one match go into either training or testing, never both. We will use grouped cross-validation on `match_id` and also try training on three leagues and testing on the fourth. A fixed 20% of matches will be set aside as a final test set that we do not touch until Week 7.
@@ -107,6 +107,7 @@ Since the xG model is predictive, we will not treat its coefficients or feature 
 - How the chance of scoring changes with distance and angle, and whether that is different for headers and kicks.
 - Whether pressure from a defender lowers the chance of scoring once distance is taken into account. The raw numbers hide this (Appendix B4).
 - Which kinds of build-up play (counterattacks, through balls, crosses, set pieces) lead to the best chances, and how that differs by team.
+- How receipt-to-shot time and displacement vary by shot situation, where these features are missing, and whether extreme values represent credible sequences.
 - How many shots a player needs before their goals minus xG actually means something.
 - **Unsupervised model (required):** we will use k-means or a Gaussian mixture model to group shots into types based on their features (location, `shot_distance`, `shot_angle`, the lane features, `percent_of_goal_open`, the goalkeeper distances, and how fast and long the build-up was). We hope to find shot types a coach would recognize, like "close-range cutback," "long shot under pressure" or "header from a set piece." We will pick the number of groups using silhouette scores and BIC. The groups will be useful if a coach can understand them, if their goal rates are different, and if adding the group label helps the baseline model. A backup idea is to group players by their per-90 stats in `player_season.csv` to find different attacking roles.
 
@@ -114,6 +115,10 @@ Since the xG model is predictive, we will not treat its coefficients or feature 
 
 - Our simplest model is a logistic regression that only uses `shot_distance` and `shot_angle`. This is the classic xG model (Rathke, 2017). It is easy to explain, and every other model has to beat it to be worth using.
 - We already have two reference points on the 37,449 analysis shots. Guessing the 9.5% average for every shot gives a log loss of 0.314 and a Brier score of 0.086. StatsBomb's own xG gets a log loss of 0.248, a Brier score of 0.070 and a ROC AUC of 0.816 (Appendix B4). StatsBomb's model is something to get close to, not something we expect to beat.
+
+**Testing the two receipt-based features**
+
+We will compare the same shot-context model without either feature, with time only, with displacement only, and with both. Comparisons will use identical match-grouped splits and the same shots, with preprocessing fitted on training data only. We will assess held-out log loss, Brier score and calibration. This tests whether the variables add information beyond shot geometry, first-time shots and defensive positioning. Their added predictive value has not yet been established.
 
 **Additional modeling approaches (at least three models: one unsupervised and two or more supervised)**
 
@@ -179,7 +184,7 @@ StatsBomb. (2024). *StatsBomb open data* [Data set]. GitHub. https://github.com/
 
 ### A1. Variables located in the team's working table
 
-These columns are in `shots_analysis_df` in the repository notebook `initial_eda_02` (penalties, 32 shots with no visible goalkeeper and 7 direct corner shots removed, 37,449 rows × 38 columns). "Source" shows whether the column is a StatsBomb field as recorded or a feature the team computed.
+These columns are in `shots_analysis_df` in the repository notebook `initial_eda_02` (penalties, 32 shots with no visible goalkeeper and 7 direct corner shots removed, 37,449 rows × 40 columns). "Source" shows whether the column is a StatsBomb field as recorded or a feature the team computed.
 
 | Variable | Description | Type | Role | Source |
 |---|---|---|---|---|
@@ -208,13 +213,27 @@ These columns are in `shots_analysis_df` in the repository notebook `initial_eda
 | `percent_of_goal_open` | Estimated share of the goal mouth (0–100) not blocked by opponents, projecting each opponent ahead of the shooter onto the goal line (outfield players 1 coordinate unit wide, goalkeeper 2) | Numeric | Predictor | Computed from freeze frame |
 | `goalkeeper_distance_from_goal` | Distance from the goalkeeper to the centre of the goal at (120, 40), in coordinate units | Numeric | Predictor | Computed from freeze frame |
 | `goalkeeper_distance_to_shooter` | Distance from the goalkeeper to the shooter, in coordinate units | Numeric | Predictor | Computed from freeze frame |
+| `receipt_to_shot_seconds` | Seconds from the shooter receiving the assisting pass to taking the shot; excludes pass travel time; missing when no valid sequence is found | Numeric, seconds | Candidate predictor | Computed from linked event timestamps |
+| `receipt_to_shot_displacement` | Straight-line distance from the receiving location to the shot location; not actual path length or necessarily forward movement; missing when no valid sequence is found | Numeric, coordinate units | Candidate predictor | Computed from linked event locations |
 | `shot_freeze_frame` | Positions of visible players at the moment of the shot | List (stored as text) | Source for the freeze-frame features; already dropped | StatsBomb |
 | `shot_deflected` | Whether the shot was deflected | Boolean | **Leakage: kept for comparison and EDA only** (post-shot) | StatsBomb |
 | `shot_statsbomb_xg` | StatsBomb's own xG for the shot | Numeric (0–1) | **Benchmark only, never a feature** | StatsBomb |
 
+**Supporting pass and receipt fields.** `shots_with_pass_receipt_df` contains the same 37,449 shots, the two calculated features and 17 supporting columns (57 columns total). These support inspection and joining; they are not additional selected model predictors.
+
+| Supporting fields | Description |
+|---|---|
+| `assisting_pass_id`, `receipt_id`, `receipt_link_status` | Linked event identifiers and the result of the matching checks |
+| `assister_id`, `assister_name` | Player who made the assisting pass |
+| `assist_timestamp`, `receipt_timestamp`, `shot_timestamp` | Event times; receipt-to-shot time uses receipt and shot timestamps from the same period |
+| `assist_start_location`, `assist_end_location` | Recorded pass start and end coordinates; these are not substituted for a missing receiving location |
+| `assist_length`, `assist_height` | Recorded assisting-pass length and height |
+| `assist_cross`, `assist_through_ball`, `assist_cut_back` | Characteristics of the assisting pass |
+| `receipt_x`, `receipt_y` | Receiving location, used with shot `x` and `y` to calculate displacement |
+
 ### A2. Variables located in the supplementary build, not yet in the team's table
 
-These are already computed in `soccer_csv/shots.csv` (full dictionary in `soccer_csv/data_dictionary.csv` [team: add the repository URL once committed]) and are planned additions to the team's table, joined on the shot `id`. Supporting tables `player_season.csv`, `team_season.csv` and `possessions.csv` are also located.
+These are already computed in `soccer_csv/shots.csv` (full dictionary in `soccer_csv/data_dictionary.csv` [team: add the repository URL once committed]) and are planned additions to the team's table, joined on the shot `id`. Supporting tables `player_season.csv`, `team_season.csv` and `possessions.csv` are also located. Some pass attributes, such as height, are now retained in the notebook's supporting dataframe; that does not mean the broader supplementary predictor set has been added to `shots_analysis_df`.
 
 | Variable | Description | Type | Role |
 |---|---|---|---|
@@ -368,3 +387,33 @@ Figure B4 is about the second half of our question. Most players did not shoot m
 - **Benchmarks.** On the 37,449 analysis shots, guessing the 9.5% average for every shot gives a log loss of 0.314 and a Brier score of 0.086 (lower is better for both). StatsBomb's xG gets a log loss of 0.248, a Brier score of 0.070 and a ROC AUC of 0.816. Our models should land somewhere between these two.
 - **Limitations to look into.** Player samples are small (Figure B4). We removed 32 shots with no goalkeeper in the frame even though they were recorded as saves or goals, and other freeze frames could be incomplete in ways that are harder to spot, since players off camera are not recorded. Having only one season also limits the finishing analysis.
 - **Changes we recommend.** (1) Keep `is_goal` as the target, but only model non-penalty shots. (2) Keep `shot_deflected` and every other after-the-shot column out of the models. (3) Only report player finishing with shrinkage and for players with at least 30 shots, with team finishing as a backup plan. (4) Move the charter's third question, about differences between men's and women's soccer, to future work, since our data only covers men's leagues.
+
+
+### B5. Time between pass and shot from time of receipt
+
+We added two variables to describe the time and movement between receiving the assisting pass and taking a shot. `receipt_to_shot_seconds` starts when the shooter receives the ball, excluding pass travel time. `receipt_to_shot_displacement` measures the straight-line distance from that location to the shot location in StatsBomb coordinate units. It does not measure the player's actual route or direction of movement.
+
+Each shot is linked to its assisting pass using `shot.key_pass_id`. We then use explicit `related_events` links to identify a successful `Ball Receipt*` event. A valid receipt must uniquely identify the shooter as receiver, agree with the pass recipient, and match the team, possession and period of the pass and shot. Event indices and timestamps must be chronological. We reject sequences with an intervening pass, shot, receipt, dispossession, miscontrol, interception or ball recovery. Carries and dribbles do not automatically invalidate the sequence.
+
+**Table B5. Coverage of the two receipt-based features (analysis shots, n = 37,449)**
+
+| Matching result | Shots |
+|---|---:|
+| Valid linked receipt; both features calculated | 26,993 |
+| No assisting-pass link | 10,435 |
+| Intervening on-ball event | 15 |
+| No valid linked receipt | 6 |
+| **Total** | **37,449** |
+
+Both features are available for 72.1% of the sample. The other 27.9% remain missing, not zero, and no shots were dropped. A zero value can be valid for an immediate shot or a shot from the same recorded location. Missing links do not prove there was no preceding pass.
+
+**Table B6. Receipt-based feature summaries among linked shots (n = 26,993)**
+
+| Feature | Median | 25th percentile | 75th percentile | Minimum | Maximum |
+|---|---:|---:|---:|---:|---:|
+| `receipt_to_shot_seconds` | 0.527 | 0.018 | 1.782 | 0.000 | 15.310 |
+| `receipt_to_shot_displacement` | 3.270 | 0.424 | 8.544 | 0.000 | 81.057 |
+
+We retained extreme values at this stage, including the maximum displacement of 81.057 units, for further inspection rather than assuming they are errors. We will also check coverage across leagues and shot situations. These summaries describe the constructed variables; they do not demonstrate an association with scoring or an improvement in prediction.
+
+The notebook keeps supporting event details in `shots_with_pass_receipt_df` for checking the calculations, then selects the 40-column `shots_analysis_df`. One-to-one shot-ID joins preserve the original 37,449 observations, existing columns and target values.
