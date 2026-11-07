@@ -21,7 +21,7 @@ subtitle: "DSE6311 Finalized Project Proposal (DRAFT)"
 | Member | Standing role | [Weekly role rotation, Weeks 3 to 8] |
 |---|---|---|
 | Alden George | Documentation | |
-| Brian D'Alelio | | |
+| Brian D'Alelio | Communication | |
 | Brian Quevillon | | |
 | Anthony Dominici | | |
 
