@@ -22,7 +22,7 @@ subtitle: "DSE6311 Finalized Project Proposal (DRAFT)"
 |---|---|---|
 | Alden George | Documentation | |
 | Brian D'Alelio | Communication | |
-| Brian Quevillon | | |
+| Brian Quevillon | Team Lead | |
 | Anthony Dominici | | |
 
 | Week | Roadmap milestone | [Lead] | [Support] |
