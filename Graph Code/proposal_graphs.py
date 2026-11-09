@@ -94,7 +94,7 @@ shot_counts, _, _ = np.histogram2d(shot_x, analysis['y'], bins=[x_edges, y_edges
 goal_counts, _, _ = np.histogram2d(shot_x, analysis['y'], bins=[x_edges, y_edges],
                                    weights=analysis['is_goal'])
 
-# Only show cells with at least 30 shots, so tiny samples don't mislead
+# Only show cells with at least 30 shots
 goal_rate = np.where(shot_counts >= 30, goal_counts / np.maximum(shot_counts, 1), np.nan)
 
 blues = LinearSegmentedColormap.from_list('blues', ['#cde2fb', '#86b6ef', '#3987e5', '#1c5cab', '#0d366b'])
