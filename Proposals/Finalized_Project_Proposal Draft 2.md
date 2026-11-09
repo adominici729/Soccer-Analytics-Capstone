@@ -88,7 +88,6 @@ Since our model predicts scoring probability, we won't treat these relationships
 
 - We do not need any new data for the main project. The four 2015/16 league seasons are already downloaded and cleaned.
 - We already decided to leave penalties out of the xG model (see *Penalty shots* in Appendix B1). Penalty shootouts were removed too.
-- One thing we have not decided yet is whether to add an optional extra step using StatsBomb's 360 data from the World Cups (2018 and 2022) and Euros (2020 and 2024). That data shows every player on the field, so it could tell us if more detail helps. We will decide in Week 5 depending on how much time we have.
 - We need to move the build scripts into the team repository, fix the hardcoded file paths, and add a README, a `requirements.txt` and a `.gitignore` so the data files stay out of the public repo.
 
 **Preprocessing and leakage prevention**
@@ -97,10 +96,6 @@ Since our model predicts scoring probability, we won't treat these relationships
 - `shot_freeze_frame` has already been dropped now that all the freeze-frame features are built. We will keep the ID columns (`id`, `match_id`, `player_id`, `team_id`) only for joining tables and splitting the data.
 - We will also leave player and team names out of the xG model (`player_name`, `team_name`, `home_team`, `away_team`). The model should judge how good the chance was, not who took it. We look at the players afterward, in the finishing analysis.
 - Category columns will be turned into numbers the models can use (one-hot encoding for logistic regression, built-in category handling for boosting). The True/False shot flags are already filled in and will be stored as 0 and 1. Very rare categories, like `shot_body_part_name = Other` (87 shots), will be grouped together.
-- We will bring the build-up and key-pass features over from the supplementary build by joining on the shot `id`. Shots with no key pass will get their own "no key pass" category instead of being left blank.
-- Decisions already made: we removed the 32 shots where the goalkeeper was missing from the freeze frame, so `goalkeeper_in_lane` = False always means the keeper was out of position. We also removed the 7 shots taken straight from corners.
-- We will add a few reshaped versions of distance and angle (the log of `shot_distance`, `shot_angle` in radians, and distance times angle). These are created inside each training step so no information leaks from the test data.
-- **We will split the data by match, not by shot.** All the shots from one match go into either training or testing, never both. We will use grouped cross-validation on `match_id` and also try training on three leagues and testing on the fourth. A fixed 20% of matches will be set aside as a final test set that we do not touch until Week 7.
 
 **Exploratory data analysis (polished EDA, Week 4)**
 
