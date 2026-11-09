@@ -48,15 +48,15 @@ This is a challenging data science problem. Only about one in ten non-penalty sh
 
 Rathke (2017) showed that shot distance and angle improve goal prediction and used goals minus xG to evaluate players. Lucey et al. (2015) and Anzer and Bauer (2021) found that adding defender and goalkeeper positions improves location-only models. We plan to apply these approaches to a nearly complete dataset covering four leagues, examine whether freeze-frame features (player positions at the moment of the shot) improve predictions, and determine whether one season is enough to distinguish finishing skill from luck.
 
-**Hypothesis 1 (shot quality).** A shot's chance of going in depends on how much of the goal the shooter can actually aim at. Distance and angle set how big the target is, but defenders in the shooting lane and the goalkeeper's position make it smaller. How the chance was created matters too. A through ball, for example, can take defenders out of the play and leave the shooter with more of the goal open.
+**Hypothesis 1 (shot quality).** A shot's chance of scoring depends on distance, angle, and how much of the goal is blocked by defenders and the goalkeeper, because together these determine how much of the goal the shooter can actually aim at. How the chance was created also matters, since certain passes can leave the shooter with a better opportunity.
 
-*Prediction 1.* If this is right, a model that adds freeze-frame and build-up features should have a lower log loss and Brier score on matches it has not seen than a logistic regression that only uses location, while staying well calibrated. We also expect defensive pressure to matter once distance is controlled for, even though it barely shows up in the raw averages (our first look at the data already points this way; see Appendix B4).
+*Prediction 1.* Adding freeze-frame and build-up features should lower log loss and Brier score on matches the model has not seen, compared with a model that only uses shot location. We also expect defensive pressure to matter once distance is taken into account (Appendix B4).
 
-**Hypothesis 2 (finishing).** Most of the difference between a player's goals and xG over one season is noise, because most players do not take many shots. Only a small group of high-volume shooters will show a finishing effect that holds up.
+**Hypothesis 2 (finishing).** Much of the difference between a player's goals and xG over one season is likely due to luck, especially for players who take fewer shots.
 
-*Prediction 2.* If this is right, a player's goals minus xG per shot in odd-numbered matches will only be weakly related to the same number in even-numbered matches. Shrinking the raw finishing numbers toward zero (empirical Bayes) should pull most players close to average and leave only a few high-volume players clearly above it.
+*Prediction 2.* We expect a weak relationship between a player's goals minus xG per shot in odd and even numbered matches. Using empirical Bayes shrinkage should bring most players closer to average, with only a few high-volume shooters standing out.
 
-Since the xG model is predictive, we will not treat its coefficients or feature importances as causes. If crosses turn out to predict goals, that tells the coaching staff where good chances tend to come from. It does not mean that adding more crosses would produce more goals.
+Since our model predicts scoring probability, we won't treat these relationships as proof that one factor directly causes another.
 
 ## Data & Methods
 
